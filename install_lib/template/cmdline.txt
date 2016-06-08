@@ -1,0 +1,1 @@
+dwc_otg.lpm_enable=0 console=ttyAMA0,115200 console=tty1 root=/dev/nfs rootfstype=nfs nfsroot=/iotlab/images/%s/image,udp,vers=3 rw smsc95xx.turbo_mode=N ip=dhcp elevator=deadline rootwait
