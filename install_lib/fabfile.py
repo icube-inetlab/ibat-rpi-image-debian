@@ -6,11 +6,14 @@ import time
 
 TMP_DIR="/home/schreiner/tmp"
 BUILD_PREFIX="raspi-build-"
+# GIT Repository
 RPI_FIRMWARE_DIR="/home/schreiner/git/github/raspberrypi/firmware"
+IOTLAB_GATEWAY_DIR="/home/schreiner/git/github/iot-lab/iot-lab-gateway.pc"
 
 env.hosts = [
     'localhost'
 ]
+
 # Set the username
 env.user   = "root"
 
@@ -42,6 +45,7 @@ def build_rootfs(build_date):
 	# Copy kernel modules for the RPI
         run("mkdir -p rootfs-%s/lib/modules/" % build_date)
         run("cp -r %s/modules/* rootfs-%s/lib/modules/" % (RPI_FIRMWARE_DIR, build_date))
+
 
 def build_bootfs(build_date):
     """ Build bootfs for RPI """
@@ -105,9 +109,14 @@ def postinstall_rootfs(build_date):
     run("chroot %s  dpkg-reconfigure -f noninteractive tzdata" % rootfs_dir)
    
     # Install needed packages
+    install_packages(rootfs_dir)
+    # Install SSH
     install_ssh(rootfs_dir)
     copy_ssh_keys(rootfs_dir)
-    install_packages(rootfs_dir)
+    # Install OML
+    install_oml2(rootfs_dir)
+    # Install IoT-LAB Gateway
+    install_iotlab_gateway(rootfs_dir)
     
     
 def configure_locale():
@@ -178,7 +187,37 @@ def copy_ssh_keys(rootfs_dir):
 def install_packages(rootfs_dir):
     """ Install and configure SSH server """
     # Install needed packages
-    run("chroot %s apt-get -y install nfs-common" % rootfs_dir)
+    run("chroot %s apt-get -y install apt-transport-https" % rootfs_dir)
+    run("chroot %s apt-get -y install nfs-common ntp vim git build-essential screen curl telnet" % rootfs_dir)
+
+
+def install_oml2(rootfs_dir):
+    """ Install and configure OML library """
+    # Install needed packages
+    run("chroot %s apt-get -y install libxml2-dev libpopt-dev libsqlite3-dev pkg-config libxml2-utils ruby" % rootfs_dir)
+    upload_template('template/oml2-2.11.0.tar.gz',
+                    "%s/usr/local/src/oml2-2.11.0.tar.gz" % rootfs_dir)
+    run("tar -xzf %s/usr/local/src/oml2-2.11.0.tar.gz -C %s/usr/local/src/" % (rootfs_dir,rootfs_dir))
+    # Configure and install OML, see template for details
+    # Need intermediate script because of chroot command limitation
+    upload_template('template/compile_oml2.sh',
+                    "%s/tmp/compile_oml2.sh" % rootfs_dir)
+    run("chmod +x %s/tmp/compile_oml2.sh" % rootfs_dir)
+    run("chroot %s /tmp/compile_oml2.sh" % rootfs_dir)
+
+    
+def install_iotlab_gateway(rootfs_dir):
+    """ Install and configure IoT-Lab Gateway Manager """
+    # Install needed packages
+    run("chroot %s apt-get install -y --force-yes python-dev python-setuptools socat avrdude openocd" % rootfs_dir)
+    run("cp -r %s %s/usr/local/src" % (IOTLAB_GATEWAY_DIR, rootfs_dir))
+    # Configure and install OML, see template for details
+    # Need intermediate script because of chroot command limitation
+    upload_template('template/compile_gateway_iotlab.sh',
+                    "%s/tmp/compile_gateway_iotlab.sh" % rootfs_dir)
+    run("chmod +x %s/tmp/compile_gateway_iotlab.sh" % rootfs_dir)
+    run("chroot %s /tmp/compile_gateway_iotlab.sh" % rootfs_dir, warn_only=True)
+    
 
 def archive_bootfs(build_date):
     """ Create archive for bootfs """
@@ -195,12 +234,14 @@ def archive_rootfs(build_date):
 	rootfs_dir_name = "rootfs-" + build_date
         run('tar czf %s.tar.gz %s' % (rootfs_dir_name, rootfs_dir_name))
 
+
 def upload_rootfs(build_date):
     """ Upload rootfs to srvnfs """
     build_dir =  TMP_DIR + "/" + BUILD_PREFIX + build_date
     with cd(build_dir):
 	rootfs_filename = "rootfs-" + build_date + ".tar.gz"
         run("scp %s root@srvnfs.ibat.iot-lab.info:/iotlab/images/custom_gateway_images_all/" % rootfs_filename)
+
 
 def build_all():
     """ Build both rootfs and bootfs for RPI """
