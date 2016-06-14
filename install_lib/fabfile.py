@@ -117,6 +117,8 @@ def postinstall_rootfs(build_date):
     install_oml2(rootfs_dir)
     # Install IoT-LAB Gateway
     install_iotlab_gateway(rootfs_dir)
+    # Install LLDPD daemon
+    install_lldp(rootfs_dir)
     
     
 def configure_locale():
@@ -189,6 +191,14 @@ def install_packages(rootfs_dir):
     # Install needed packages
     run("chroot %s apt-get -y install apt-transport-https" % rootfs_dir)
     run("chroot %s apt-get -y install nfs-common ntp vim git build-essential screen curl telnet" % rootfs_dir)
+
+def install_lldp(rootfs_dir):
+    """ Install and configure LLDP daemon """
+    # Install needed packages
+    run("chroot %s apt-get -y install lldpd" % rootfs_dir)
+    # Upload configuration file
+    upload_template('template/lldpd',
+                    "%s/etc/default/lldpd" % rootfs_dir)
 
 
 def install_oml2(rootfs_dir):
