@@ -68,6 +68,10 @@ def postinstall_rootfs(build_date):
 	run("rm etc/hostname")
 	run("ln -s /var/local/config/hostname etc/hostname")
 
+    # Add RPI firmware libraries to the cache
+    upload_template('template/etc/ld.so.conf.d/vc.conf',
+                    "%s/etc/ld.so.conf.d/vc.conf" % rootfs_dir)
+
     # Create tmpfs mount points
     if not exists("%s/var/tmp" % rootfs_dir):
         run("mkdir -p %s/var/tmp " % rootfs_dir)
