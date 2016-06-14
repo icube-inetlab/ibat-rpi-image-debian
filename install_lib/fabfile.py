@@ -110,6 +110,10 @@ def postinstall_rootfs(build_date):
     # Configure timezone
     run("echo \"Europe/Paris\" > %s/etc/timezone" % rootfs_dir)
     run("chroot %s  dpkg-reconfigure -f noninteractive tzdata" % rootfs_dir)
+
+    # Add our USB devices to udev rules
+    upload_template('template/etc/udev/rules.d/zigduino.rules',
+                    "%s/etc/udev/rules.d/zigduino.rules" % rootfs_dir)
    
     # Install needed packages
     install_packages(rootfs_dir)
