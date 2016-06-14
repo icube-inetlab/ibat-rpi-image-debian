@@ -79,7 +79,6 @@ def postinstall_rootfs(build_date):
         run("mkdir -p %s/var/lib/dhcp " % rootfs_dir)
     if not exists("%s/var/volatile" % rootfs_dir):
         run("mkdir -p %s/var/volatile " % rootfs_dir)
-    
 
     # Set source list
     run("echo \"deb http://mirrordirector.raspbian.org/raspbian/ jessie main contrib non-free rpi\" > %s/etc/apt/sources.list" % rootfs_dir)
@@ -89,15 +88,15 @@ def postinstall_rootfs(build_date):
     run("chroot %s apt-get update" % rootfs_dir)
 
     # Copy configuration template
-    upload_template('template/fstab',
+    upload_template('template/etc/fstab',
                     "%s/etc/fstab" % rootfs_dir)
-    upload_template('template/hosts',
+    upload_template('template/etc/hosts',
                     "%s/etc/hosts" % rootfs_dir)
-    upload_template('template/interfaces',
+    upload_template('template/etc/network/interfaces',
                     "%s/etc/network/interfaces" % rootfs_dir)
 
     # Copy NFS mount script
-    upload_template('template/iotlab_nfs_mount',
+    upload_template('template/etc/init.d/iotlab_nfs_mount',
                     "%s/etc/init.d/iotlab_nfs_mount" % rootfs_dir)
     run("chmod +x %s/etc/init.d/iotlab_nfs_mount" % rootfs_dir)
     run("chroot %s  update-rc.d iotlab_nfs_mount defaults" % rootfs_dir)
@@ -186,7 +185,7 @@ def copy_ssh_keys(rootfs_dir):
         run("mkdir %s/root/.ssh" % rootfs_dir)
     run("chown root:root %s/root/.ssh" % rootfs_dir)
     run("chmod 700 %s/root/.ssh" % rootfs_dir)
-    upload_template('template/authorized_keys',
+    upload_template('template/root/.ssh/authorized_keys',
                     "%s/root/.ssh/authorized_keys" % rootfs_dir)
     run("chmod 600 %s/root/.ssh/authorized_keys" % rootfs_dir)
 
@@ -201,7 +200,7 @@ def install_lldp(rootfs_dir):
     # Install needed packages
     run("chroot %s apt-get -y install lldpd" % rootfs_dir)
     # Upload configuration file
-    upload_template('template/lldpd',
+    upload_template('template/etc/default/lldpd',
                     "%s/etc/default/lldpd" % rootfs_dir)
 
 
@@ -247,6 +246,14 @@ def archive_rootfs(build_date):
     with cd(build_dir):
 	rootfs_dir_name = "rootfs-" + build_date
         run('tar czf %s.tar.gz %s' % (rootfs_dir_name, rootfs_dir_name))
+
+
+def upload_bootfs(build_date):
+    """ Upload bootfs to srvnfs """
+    build_dir =  TMP_DIR + "/" + BUILD_PREFIX + build_date
+    with cd(build_dir):
+	rootfs_filename = "bootfs-" + build_date + ".tar.gz"
+        run("scp %s root@srvnfs.ibat.iot-lab.info:/iotlab/images/custom_gateway_images_all/" % rootfs_filename)
 
 
 def upload_rootfs(build_date):
