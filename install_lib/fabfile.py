@@ -197,7 +197,7 @@ def install_packages(rootfs_dir):
     """ Install and configure SSH server """
     # Install needed packages
     run("chroot %s apt-get -y install apt-transport-https" % rootfs_dir)
-    run("chroot %s apt-get -y install nfs-common ntp vim git build-essential screen curl telnet" % rootfs_dir)
+    run("chroot %s apt-get -y install nfs-common ntp vim git build-essential screen curl telnet usbutils" % rootfs_dir)
 
 def install_lldp(rootfs_dir):
     """ Install and configure LLDP daemon """
