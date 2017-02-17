@@ -130,6 +130,10 @@ def postinstall_rootfs(build_date):
     install_iotlab_gateway(rootfs_dir)
     # Install LLDPD daemon
     install_lldp(rootfs_dir)
+
+    # configure NTP
+    upload_template('template/etc/ntp.conf',
+                    "%s/etc/ntp.conf" % rootfs_dir)
     
     
 def configure_locale():
