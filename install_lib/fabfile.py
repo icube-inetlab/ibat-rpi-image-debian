@@ -8,7 +8,7 @@ TMP_DIR="/home/schreiner/tmp"
 BUILD_PREFIX="raspi-build-"
 # GIT Repository
 RPI_FIRMWARE_DIR="/home/schreiner/git/github/raspberrypi/firmware"
-IOTLAB_GATEWAY_DIR="/home/schreiner/git/github/iot-lab/iot-lab-gateway.pc"
+IOTLAB_GATEWAY_DIR="/home/schreiner/git/github/iot-lab/iot-lab-gateway"
 
 env.hosts = [
     'localhost'
