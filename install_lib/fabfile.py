@@ -59,7 +59,7 @@ def build_bootfs_with_kernel(build_date):
     # Copy Raspberry boot files
     run("cp -r %s/boot/* %s/bootfs-%s" % (RPI_FIRMWARE_DIR, build_dir, build_date))
     # Overwrite cmdline.txt
-    upload_template('template/cmdline.txt',
+    upload_template('template/bootfs/kernel/cmdline.txt',
                     "%s/cmdline.txt" % bootfs_dir)
 
     
@@ -73,7 +73,7 @@ def build_bootfs_with_uboot(build_date):
     run("cp %s/u-boot.bin %s/bootfs-%s" % (UBOOT_DIR, build_dir, build_date))
     run("cp %s/boot.scr.uimg %s/bootfs-%s" % (UBOOT_DIR, build_dir, build_date))
     # We do not need GPU, use all RAM for system
-    upload_template('template/u-boot/config.txt',
+    upload_template('template/bootfs/u-boot/config.txt',
                     "%s/config.txt" % bootfs_dir)
     # Copy Raspberry firmware boot files
     run("cp %s/boot/* %s/" % (RPI_FIRMWARE_NOOB_DIR, bootfs_dir))
@@ -89,7 +89,7 @@ def postinstall_rootfs(build_date):
 	run("ln -s /var/local/config/hostname etc/hostname")
 
     # Add RPI firmware libraries to the cache
-    upload_template('template/etc/ld.so.conf.d/vc.conf',
+    upload_template('template/rootfs/etc/ld.so.conf.d/vc.conf',
                     "%s/etc/ld.so.conf.d/vc.conf" % rootfs_dir)
 
     # Create tmpfs mount points
@@ -108,15 +108,15 @@ def postinstall_rootfs(build_date):
     run("chroot %s apt-get update" % rootfs_dir)
 
     # Copy configuration template
-    upload_template('template/etc/fstab',
+    upload_template('template/rootfs/etc/fstab',
                     "%s/etc/fstab" % rootfs_dir)
-    upload_template('template/etc/hosts',
+    upload_template('template/rootfs/etc/hosts',
                     "%s/etc/hosts" % rootfs_dir)
-    upload_template('template/etc/network/interfaces',
+    upload_template('template/rootfs/etc/network/interfaces',
                     "%s/etc/network/interfaces" % rootfs_dir)
 
     # Copy NFS mount script
-    upload_template('template/etc/init.d/iotlab_nfs_mount',
+    upload_template('template/rootfs/etc/init.d/iotlab_nfs_mount',
                     "%s/etc/init.d/iotlab_nfs_mount" % rootfs_dir)
     run("chmod +x %s/etc/init.d/iotlab_nfs_mount" % rootfs_dir)
     run("chroot %s  update-rc.d iotlab_nfs_mount defaults" % rootfs_dir)
@@ -148,7 +148,7 @@ def postinstall_rootfs(build_date):
     install_lldp(rootfs_dir)
 
     # configure NTP
-    upload_template('template/etc/ntp.conf',
+    upload_template('template/rootfs/etc/ntp.conf',
                     "%s/etc/ntp.conf" % rootfs_dir)
     
     
@@ -157,7 +157,7 @@ def configure_locale():
     # ! NOT TESTED !
 
     # Configure Azerty keyboard 
-    upload_template('template/keyboard-configuration.conf',
+    upload_template('template/debconf/keyboard-configuration.conf',
        "%s/tmp/keyboard-configuration.conf" % rootfs_dir)
     run("chroot %s debconf-set-selections < /tmp/keyboard-configuration.conf" % rootfs_dir)
     run("chroot %s dpkg-reconfigure -f noninteractive keyboard-configuration" % rootfs_dir)
@@ -174,34 +174,34 @@ def install_ssh(rootfs_dir):
     run("chroot %s apt-get -y install ssh" % rootfs_dir)
 
     # Copy SSH configuration
-    upload_template('template/ssh/ssh_config',
+    upload_template('template/rootfs/etc/ssh/ssh_config',
                     "%s/etc/ssh/ssh_config" % rootfs_dir)
-    upload_template('template/ssh/sshd_config',
+    upload_template('template/rootfs/etc/ssh/sshd_config',
                     "%s/etc/ssh/sshd_config" % rootfs_dir)
 
     # Copy SSH Keys
-    upload_template('template/ssh/ssh_host_dsa_key',
+    upload_template('template/rootfs/etc/ssh/ssh_host_dsa_key',
                     "%s/etc/ssh/ssh_host_dsa_key" % rootfs_dir,
                      backup=False)
-    upload_template('template/ssh/ssh_host_dsa_key.pub',
+    upload_template('template/rootfs/etc/ssh/ssh_host_dsa_key.pub',
                     "%s/etc/ssh/ssh_host_dsa_key.pub" % rootfs_dir,
                      backup=False)
-    upload_template('template/ssh/ssh_host_ecdsa_key',
+    upload_template('template/rootfs/etc/ssh/ssh_host_ecdsa_key',
                     "%s/etc/ssh/ssh_host_ecdsa_key" % rootfs_dir,
                      backup=False)
-    upload_template('template/ssh/ssh_host_ecdsa_key.pub',
+    upload_template('template/rootfs/etc/ssh/ssh_host_ecdsa_key.pub',
                     "%s/etc/ssh/ssh_host_ecdsa_key.pub" % rootfs_dir,
                      backup=False)
-    upload_template('template/ssh/ssh_host_ed25519_key',
+    upload_template('template/rootfs/etc/ssh/ssh_host_ed25519_key',
                     "%s/etc/ssh/ssh_host_ed25519_key" % rootfs_dir,
                      backup=False)
-    upload_template('template/ssh/ssh_host_ed25519_key.pub',
+    upload_template('template/rootfs/etc/ssh/ssh_host_ed25519_key.pub',
                     "%s/etc/ssh/ssh_host_ed25519_key.pub" % rootfs_dir,
                      backup=False)
-    upload_template('template/ssh/ssh_host_rsa_key',
+    upload_template('template/rootfs/etc/ssh/ssh_host_rsa_key',
                     "%s/etc/ssh/ssh_host_rsa_key" % rootfs_dir,
                      backup=False)
-    upload_template('template/ssh/ssh_host_rsa_key.pub',
+    upload_template('template/rootfs/etc/ssh/ssh_host_rsa_key.pub',
                     "%s/etc/ssh/ssh_host_rsa_key.pub" % rootfs_dir,
                      backup=False)
 
@@ -213,7 +213,7 @@ def copy_ssh_keys(rootfs_dir):
         run("mkdir %s/root/.ssh" % rootfs_dir)
     run("chown root:root %s/root/.ssh" % rootfs_dir)
     run("chmod 700 %s/root/.ssh" % rootfs_dir)
-    upload_template('template/root/.ssh/authorized_keys',
+    upload_template('template/rootfs/root/.ssh/authorized_keys',
                     "%s/root/.ssh/authorized_keys" % rootfs_dir)
     run("chmod 600 %s/root/.ssh/authorized_keys" % rootfs_dir)
 
@@ -228,7 +228,7 @@ def install_lldp(rootfs_dir):
     # Install needed packages
     run("chroot %s apt-get -y install lldpd" % rootfs_dir)
     # Upload configuration file
-    upload_template('template/etc/default/lldpd',
+    upload_template('template/rootfs/etc/default/lldpd',
                     "%s/etc/default/lldpd" % rootfs_dir)
 
 
@@ -236,12 +236,12 @@ def install_oml2(rootfs_dir):
     """ Install and configure OML library """
     # Install needed packages
     run("chroot %s apt-get -y install libxml2-dev libpopt-dev libsqlite3-dev pkg-config libxml2-utils ruby" % rootfs_dir)
-    upload_template('template/oml2-2.11.0.tar.gz',
+    upload_template('template/src/oml2-2.11.0.tar.gz',
                     "%s/usr/local/src/oml2-2.11.0.tar.gz" % rootfs_dir)
     run("tar -xzf %s/usr/local/src/oml2-2.11.0.tar.gz -C %s/usr/local/src/" % (rootfs_dir,rootfs_dir))
     # Configure and install OML, see template for details
     # Need intermediate script because of chroot command limitation
-    upload_template('template/compile_oml2.sh',
+    upload_template('template/install_scripts/compile_oml2.sh',
                     "%s/tmp/compile_oml2.sh" % rootfs_dir)
     run("chmod +x %s/tmp/compile_oml2.sh" % rootfs_dir)
     run("chroot %s /tmp/compile_oml2.sh" % rootfs_dir)
@@ -254,7 +254,7 @@ def install_iotlab_gateway(rootfs_dir):
     run("cp -r %s %s/usr/local/src" % (IOTLAB_GATEWAY_DIR, rootfs_dir))
     # Configure and install OML, see template for details
     # Need intermediate script because of chroot command limitation
-    upload_template('template/compile_gateway_iotlab.sh',
+    upload_template('template/install_scripts/compile_gateway_iotlab.sh',
                     "%s/tmp/compile_gateway_iotlab.sh" % rootfs_dir)
     run("chmod +x %s/tmp/compile_gateway_iotlab.sh" % rootfs_dir)
     run("chroot %s /tmp/compile_gateway_iotlab.sh" % rootfs_dir, warn_only=True)
