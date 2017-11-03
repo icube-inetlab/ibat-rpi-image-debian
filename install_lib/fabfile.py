@@ -131,10 +131,6 @@ def postinstall_rootfs(build_date):
     run("echo \"Europe/Paris\" > %s/etc/timezone" % rootfs_dir)
     run("chroot %s  dpkg-reconfigure -f noninteractive tzdata" % rootfs_dir)
 
-    # Add our USB devices to udev rules
-    upload_template('template/etc/udev/rules.d/zigduino.rules',
-                    "%s/etc/udev/rules.d/zigduino.rules" % rootfs_dir)
-
     # Disable udev net rule generation
     with cd(rootfs_dir):
         run('ln -s /dev/null etc/udev/rules.d/75-persistent-net-generator.rules')
