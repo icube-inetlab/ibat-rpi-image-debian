@@ -1,6 +1,6 @@
 from fabric.api import env, run, sudo
 from fabric.contrib.files import *
-from fabric.api import local
+from fabric.api import local, cd
 
 import time
 
@@ -39,7 +39,7 @@ def build_rootfs(build_date):
     run("mkdir -p %s" % build_dir)
     with cd(build_dir):
         # Download and setup first and second stage
-        run("debootstrap --foreign --no-check-gpg --include=ca-certificates --arch=armhf stable rootfs-%s http://archive.raspbian.com/raspbian" % build_date)
+        run("debootstrap --foreign --no-check-gpg --include=ca-certificates --arch=armhf jessie rootfs-%s http://archive.raspbian.com/raspbian" % build_date)
         run("cp $(which qemu-arm-static) rootfs-%s/usr/bin" % build_date)
         run("chown -R root.root rootfs-%s" % build_date)
 	run("chroot rootfs-%s/ /debootstrap/debootstrap --second-stage --verbose" % build_date)
@@ -305,7 +305,7 @@ def build_all():
     postinstall_rootfs(build_date)
     archive_rootfs(build_date)
     # Build boot filesystem
-    build_bootfs(build_date)
+    build_bootfs_with_uboot(build_date)
     archive_bootfs(build_date)
 
 
