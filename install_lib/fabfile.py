@@ -6,9 +6,12 @@ import time
 
 TMP_DIR="/home/schreiner/tmp"
 BUILD_PREFIX="raspi-build-"
-# GIT Repository
+
+# Remote git repositories
 RPI_FIRMWARE_DIR="/home/schreiner/git/github/raspberrypi/firmware"
+RPI_FIRMWARE_NOOB_DIR="/home/schreiner/git/noob/firmware"
 IOTLAB_GATEWAY_DIR="/home/schreiner/git/github/iot-lab/iot-lab-gateway"
+UBOOT_DIR="/home/schreiner/git/github/swarren/u-boot"
 
 env.hosts = [
     'localhost'
@@ -47,16 +50,33 @@ def build_rootfs(build_date):
         run("cp -r %s/modules/* rootfs-%s/lib/modules/" % (RPI_FIRMWARE_DIR, build_date))
 
 
-def build_bootfs(build_date):
-    """ Build bootfs for RPI """
+def build_bootfs_with_kernel(build_date):
+    """ Build bootfs for RPI2 with kernel """
+    # Create build_dir
     build_dir =  TMP_DIR + "/" + BUILD_PREFIX + build_date
     bootfs_dir = build_dir + "/bootfs-" + build_date
     run("mkdir -p %s" % bootfs_dir)
-    # FIXME: copy files from another git repository
+    # Copy Raspberry boot files
     run("cp -r %s/boot/* %s/bootfs-%s" % (RPI_FIRMWARE_DIR, build_dir, build_date))
-    # Copy RPI bootfile configuration
+    # Overwrite cmdline.txt
     upload_template('template/cmdline.txt',
                     "%s/cmdline.txt" % bootfs_dir)
+
+    
+def build_bootfs_with_uboot(build_date):
+    """ Build bootfs for RPI2 with u-boot """
+    # Create build_dir
+    build_dir =  TMP_DIR + "/" + BUILD_PREFIX + build_date
+    bootfs_dir = build_dir + "/bootfs-" + build_date
+    run("mkdir -p %s" % bootfs_dir)
+    # Copy u-boot files
+    run("cp %s/u-boot.bin %s/bootfs-%s" % (UBOOT_DIR, build_dir, build_date))
+    run("cp %s/boot.scr.uimg %s/bootfs-%s" % (UBOOT_DIR, build_dir, build_date))
+    # We do not need GPU, use all RAM for system
+    upload_template('template/u-boot/config.txt',
+                    "%s/config.txt" % bootfs_dir)
+    # Copy Raspberry firmware boot files
+    run("cp %s/boot/* %s/" % (RPI_FIRMWARE_NOOB_DIR, bootfs_dir))
     
 
 def postinstall_rootfs(build_date):
