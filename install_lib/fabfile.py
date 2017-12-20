@@ -174,7 +174,7 @@ def configure_locale():
 def install_ssh(rootfs_dir):
     """ Install and configure SSH server """
     # Install needed packages
-    run("chroot %s apt-get -y install ssh" % rootfs_dir)
+    run("chroot %s apt-get -y --force-yes install ssh" % rootfs_dir)
 
     # Copy SSH configuration
     upload_template('template/rootfs/etc/ssh/ssh_config',
@@ -223,13 +223,13 @@ def copy_ssh_keys(rootfs_dir):
 def install_packages(rootfs_dir):
     """ Install and configure SSH server """
     # Install needed packages
-    run("chroot %s apt-get -y install apt-transport-https" % rootfs_dir)
-    run("chroot %s apt-get -y install nfs-common ntp vim git build-essential screen curl telnet usbutils byobu gcc-avr" % rootfs_dir)
+    run("chroot %s apt-get -y --force-yes install apt-transport-https" % rootfs_dir)
+    run("chroot %s apt-get -y --force-yes install nfs-common ntp vim git build-essential screen curl telnet usbutils byobu gcc-avr wiringpi i2c-tools" % rootfs_dir)
 
 def install_lldp(rootfs_dir):
     """ Install and configure LLDP daemon """
     # Install needed packages
-    run("chroot %s apt-get -y install lldpd" % rootfs_dir)
+    run("chroot %s apt-get -y --force-yes install lldpd" % rootfs_dir)
     # Upload configuration file
     upload_template('template/rootfs/etc/default/lldpd',
                     "%s/etc/default/lldpd" % rootfs_dir)
@@ -238,7 +238,7 @@ def install_lldp(rootfs_dir):
 def install_oml2(rootfs_dir):
     """ Install and configure OML library """
     # Install needed packages
-    run("chroot %s apt-get -y install libxml2-dev libpopt-dev libsqlite3-dev pkg-config libxml2-utils ruby" % rootfs_dir)
+    run("chroot %s apt-get -y --force-yes install libxml2-dev libpopt-dev libsqlite3-dev pkg-config libxml2-utils ruby" % rootfs_dir)
     upload_template('template/src/oml2-2.11.0.tar.gz',
                     "%s/usr/local/src/oml2-2.11.0.tar.gz" % rootfs_dir)
     run("tar -xzf %s/usr/local/src/oml2-2.11.0.tar.gz -C %s/usr/local/src/" % (rootfs_dir,rootfs_dir))
