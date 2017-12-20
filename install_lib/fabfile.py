@@ -262,6 +262,18 @@ def install_iotlab_gateway(rootfs_dir):
     run("chmod +x %s/tmp/compile_gateway_iotlab.sh" % rootfs_dir)
     run("chroot %s /tmp/compile_gateway_iotlab.sh" % rootfs_dir, warn_only=True)
     
+    # Manual post-install, the release task
+    # in setup.py works on a running OS only
+    run("cp %s/bin/rules.d/*.rules %s/etc/udev/rules.d/" % (IOTLAB_GATEWAY_DIR, rootfs_dir))
+    run("cp %s/bin/init_script/gateway-server-daemon %s/etc/init.d/" % (IOTLAB_GATEWAY_DIR, rootfs_dir))
+    run("chmod +755 %s/etc/init.d/gateway-server-daemon" % (rootfs_dir))
+    run("chroot %s update-rc.d gateway-server-daemon start 80 2 3 4 5 . stop 20 0 1 6 ." % rootfs_dir)
+    run("chroot %s adduser www-data dialout" % rootfs_dir)
+    # Allow writeable home dir for python eggcache
+    run("chroot %s mkdir -p /home/www" % rootfs_dir)
+    run("chroot %s chown www-data:www-data /home/www" % rootfs_dir)
+    run("chroot %s usermod -d /home/www www-data" % rootfs_dir)
+
 
 def archive_bootfs(build_date):
     """ Create archive for bootfs """
