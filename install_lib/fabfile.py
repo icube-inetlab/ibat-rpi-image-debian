@@ -4,14 +4,17 @@ from fabric.api import local, cd
 
 import time
 
-TMP_DIR="/home/schreiner/tmp"
 BUILD_PREFIX="raspi-build-"
 
+# Directories
+BASE_DIR = "/home/schreiner/git/srcnet/ibat-rpi-image-debian"
+TMP_DIR= BASE_DIR + "/build"
+
 # Remote git repositories
-RPI_FIRMWARE_DIR="/home/schreiner/git/github/raspberrypi/firmware"
-RPI_FIRMWARE_NOOB_DIR="/home/schreiner/git/noob/firmware"
-IOTLAB_GATEWAY_DIR="/home/schreiner/git/github/iot-lab/iot-lab-gateway"
-UBOOT_DIR="/home/schreiner/git/github/swarren/u-boot"
+RPI_FIRMWARE_DIR = BASE_DIR + "/parts/firmware"
+RPI_FIRMWARE_NOOB_DIR = BASE_DIR + "/parts/ibat-firmware-noob"
+IOTLAB_GATEWAY_DIR = BASE_DIR + "/parts/iot-lab-gateway"
+UBOOT_DIR = BASE_DIR + "/parts/u-boot"
 
 env.hosts = [
     'localhost'
@@ -70,8 +73,8 @@ def build_bootfs_with_uboot(build_date):
     bootfs_dir = build_dir + "/bootfs-" + build_date
     run("mkdir -p %s" % bootfs_dir)
     # Copy u-boot files
-    run("cp %s/u-boot.bin %s/bootfs-%s" % (UBOOT_DIR, build_dir, build_date))
-    run("cp %s/boot.scr.uimg %s/bootfs-%s" % (UBOOT_DIR, build_dir, build_date))
+    run("cp %s/boot/u-boot.bin %s/bootfs-%s" % (RPI_FIRMWARE_NOOB_DIR, build_dir, build_date))
+    run("cp %s/boot/boot.scr.uimg %s/bootfs-%s" % (RPI_FIRMWARE_NOOB_DIR, build_dir, build_date))
     # We do not need GPU, use all RAM for system
     upload_template('template/bootfs/u-boot/config.txt',
                     "%s/config.txt" % bootfs_dir)
@@ -81,7 +84,7 @@ def build_bootfs_with_uboot(build_date):
 
 def postinstall_rootfs(build_date):
     """ Post install rootfs GNU/Linux Debian """
-    build_dir =  TMP_DIR + "/raspi-build-" + build_date
+    build_dir =  TMP_DIR + "/" + BUILD_PREFIX + build_date
     rootfs_dir = build_dir + "/rootfs-" + build_date
     # Set hostname
     with cd(rootfs_dir):
