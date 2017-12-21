@@ -12,21 +12,22 @@ from fabric.contrib.files import exists, upload_template
 from fabric.api import local, cd
 
 
-BUILD_PREFIX = "raspi-build-"
-
-# Directories
+# Set absolute path location of this repository
 BASE_DIR = "/home/schreiner/git/srcnet/ibat-rpi-image-debian"
-TMP_DIR = BASE_DIR + "/build"
+# Set your remote NFS server address
+SRVNFS = "srvnfs.ibat.iot-lab.info"
 
+# DON'T TOUCH !
+# Build directory
+TMP_DIR = BASE_DIR + "/build"
+# last build version prefix
+BUILD_PREFIX = "raspi-build-"
 # Remote git repositories
 RPI_FIRMWARE_DIR = BASE_DIR + "/parts/firmware"
 RPI_FIRMWARE_NOOB_DIR = BASE_DIR + "/parts/ibat-firmware-noob"
 IBAT_KEYS_DIR = BASE_DIR + "/parts/ibat-keys"
 IOTLAB_GATEWAY_DIR = BASE_DIR + "/parts/iot-lab-gateway"
 UBOOT_DIR = BASE_DIR + "/parts/u-boot"
-
-# Remote NFS
-SRVNFS = "srvnfs.ibat.iot-lab.info"
 
 env.hosts = [
     'localhost'
@@ -322,7 +323,8 @@ def upload_bootfs(build_date):
     build_dir = TMP_DIR + "/" + BUILD_PREFIX + build_date
     with cd(build_dir):
         rootfs_filename = "bootfs-" + build_date + ".tar.gz"
-        run("scp %s root@srvnfs.ibat.iot-lab.info:/iotlab/images/custom_gateway_images_all/" % rootfs_filename)
+        run("scp %s root@%s:/iotlab/images/custom_gateway_images_all/"
+            % (SRVNFS, rootfs_filename))
 
 
 def upload_rootfs(build_date):
@@ -330,7 +332,8 @@ def upload_rootfs(build_date):
     build_dir = TMP_DIR + "/" + BUILD_PREFIX + build_date
     with cd(build_dir):
         rootfs_filename = "rootfs-" + build_date + ".tar.gz"
-        run("scp %s root@srvnfs.ibat.iot-lab.info:/iotlab/images/custom_gateway_images_all/" % rootfs_filename)
+        run("scp %s root@%s:/iotlab/images/custom_gateway_images_all/"
+            % (SRVNFS, rootfs_filename))
 
 
 def build_all():
