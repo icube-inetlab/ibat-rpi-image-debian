@@ -21,6 +21,7 @@ TMP_DIR = BASE_DIR + "/build"
 # Remote git repositories
 RPI_FIRMWARE_DIR = BASE_DIR + "/parts/firmware"
 RPI_FIRMWARE_NOOB_DIR = BASE_DIR + "/parts/ibat-firmware-noob"
+IBAT_KEYS_DIR = BASE_DIR + "/parts/ibat-keys"
 IOTLAB_GATEWAY_DIR = BASE_DIR + "/parts/iot-lab-gateway"
 UBOOT_DIR = BASE_DIR + "/parts/u-boot"
 
@@ -200,28 +201,28 @@ def install_ssh(rootfs_dir):
                     "%s/etc/ssh/sshd_config" % rootfs_dir)
 
     # Copy SSH Keys
-    upload_template('template/rootfs/etc/ssh/ssh_host_dsa_key',
+    upload_template('%s/template/rootfs/etc/ssh/ssh_host_dsa_key' % IBAT_KEYS_DIR,
                     "%s/etc/ssh/ssh_host_dsa_key" % rootfs_dir,
                     backup=False)
-    upload_template('template/rootfs/etc/ssh/ssh_host_dsa_key.pub',
+    upload_template('%s/template/rootfs/etc/ssh/ssh_host_dsa_key.pub' % IBAT_KEYS_DIR,
                     "%s/etc/ssh/ssh_host_dsa_key.pub" % rootfs_dir,
                     backup=False)
-    upload_template('template/rootfs/etc/ssh/ssh_host_ecdsa_key',
+    upload_template('%s/template/rootfs/etc/ssh/ssh_host_ecdsa_key' % IBAT_KEYS_DIR,
                     "%s/etc/ssh/ssh_host_ecdsa_key" % rootfs_dir,
                     backup=False)
-    upload_template('template/rootfs/etc/ssh/ssh_host_ecdsa_key.pub',
+    upload_template('%s/template/rootfs/etc/ssh/ssh_host_ecdsa_key.pub' % IBAT_KEYS_DIR,
                     "%s/etc/ssh/ssh_host_ecdsa_key.pub" % rootfs_dir,
                     backup=False)
-    upload_template('template/rootfs/etc/ssh/ssh_host_ed25519_key',
+    upload_template('%s/template/rootfs/etc/ssh/ssh_host_ed25519_key' % IBAT_KEYS_DIR,
                     "%s/etc/ssh/ssh_host_ed25519_key" % rootfs_dir,
                     backup=False)
-    upload_template('template/rootfs/etc/ssh/ssh_host_ed25519_key.pub',
+    upload_template('%s/template/rootfs/etc/ssh/ssh_host_ed25519_key.pub' % IBAT_KEYS_DIR,
                     "%s/etc/ssh/ssh_host_ed25519_key.pub" % rootfs_dir,
                     backup=False)
-    upload_template('template/rootfs/etc/ssh/ssh_host_rsa_key',
+    upload_template('%s/template/rootfs/etc/ssh/ssh_host_rsa_key' % IBAT_KEYS_DIR,
                     "%s/etc/ssh/ssh_host_rsa_key" % rootfs_dir,
                     backup=False)
-    upload_template('template/rootfs/etc/ssh/ssh_host_rsa_key.pub',
+    upload_template('%s/template/rootfs/etc/ssh/ssh_host_rsa_key.pub' % IBAT_KEYS_DIR,
                     "%s/etc/ssh/ssh_host_rsa_key.pub" % rootfs_dir,
                     backup=False)
 
@@ -233,7 +234,7 @@ def copy_ssh_keys(rootfs_dir):
         run("mkdir %s/root/.ssh" % rootfs_dir)
     run("chown root:root %s/root/.ssh" % rootfs_dir)
     run("chmod 700 %s/root/.ssh" % rootfs_dir)
-    upload_template('template/rootfs/root/.ssh/authorized_keys',
+    upload_template('%s/template/rootfs/root/authorized_keys' % IBAT_KEYS_DIR,
                     "%s/root/.ssh/authorized_keys" % rootfs_dir)
     run("chmod 600 %s/root/.ssh/authorized_keys" % rootfs_dir)
 
