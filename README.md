@@ -11,10 +11,10 @@ Currently working Raspberry Pi boards :
 
 * Raspberry Pi 2
 
-Build on : 
+Build script validated on: 
 
 * Debian 9 Stretch
-* Should also be working on Ubuntu 14.04 and 16.04
+* Ubuntu 14.04 LTS
 
 For more information, see:
 
