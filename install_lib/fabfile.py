@@ -324,7 +324,7 @@ def upload_bootfs(build_date):
     with cd(build_dir):
         rootfs_filename = "bootfs-" + build_date + ".tar.gz"
         run("scp %s root@%s:/iotlab/images/custom_gateway_images_all/"
-            % (SRVNFS, rootfs_filename))
+            % (rootfs_filename, SRVNFS))
 
 
 def upload_rootfs(build_date):
@@ -333,7 +333,7 @@ def upload_rootfs(build_date):
     with cd(build_dir):
         rootfs_filename = "rootfs-" + build_date + ".tar.gz"
         run("scp %s root@%s:/iotlab/images/custom_gateway_images_all/"
-            % (SRVNFS, rootfs_filename))
+            % (rootfs_filename, SRVNFS))
 
 
 def build_all():
